@@ -290,85 +290,27 @@ const MSG_IV = 6000;
 })();
 
 /* --- PHOTO DETECTION --- */
-function tryLoadSrc(src){
+function tryPhoto(letter,n){
+  const base=(CONFIG.photoDir||'')+letter+n;
   return new Promise(resolve=>{
     const img=new Image();
-    img.onload=()=>resolve(src);
-    img.onerror=()=>resolve(null);
-    img.src=src;
+    img.onload=()=>resolve(base+'.jpg');
+    img.onerror=()=>{
+      const img2=new Image();
+      img2.onload=()=>resolve(base+'.png');
+      img2.onerror=()=>resolve(null);
+      img2.src=base+'.png';
+    };
+    img.src=base+'.jpg';
   });
 }
-async function detectPhotos(letter){
-  const dir=CONFIG.photoDir||'';
-  const found=[];
-  for(let n=1;n<=CONFIG.maxPhotos;n++){
-    const base=dir+letter+n;
-    // try jpg → JPG → png → PNG の順で探す
-    const result=await tryLoadSrc(base+'.jpg')
-      ||await tryLoadSrc(base+'.JPG')
-      ||await tryLoadSrc(base+'.png')
-      ||await tryLoadSrc(base+'.PNG');
-    if(result) found.push(result);
-  }
-  return found;
-}
 
-/* --- PERSON SECTIONS --- */
-function buildSlideshow(sec, photos, delay){
-  const sw      = sec.querySelector('.slideshow');
-  const wrap    = sec.querySelector('.slides-wrap');
-  const dotsRow = sec.querySelector('.slide-dots-row');
-  const countLbl= sec.querySelector('.slide-count-label');
-  const btnPrev = sec.querySelector('.slide-btn.prev');
-  const btnNext = sec.querySelector('.slide-btn.next');
-  const tapPrev = sec.querySelector('.slide-tap.prev');
-  const tapNext = sec.querySelector('.slide-tap.next');
+/* --- PERSON SECTIONS: progressive loading --- */
+const personStates={};
 
-  // clear loading state
-  wrap.innerHTML='';
-  dotsRow.innerHTML='';
-
-  let cur=0, autoTimer;
-  photos.forEach((src,i)=>{
-    const slide=document.createElement('div');
-    slide.className='slide'+(i===0?' active':'');
-    const img=document.createElement('img');
-    img.src=src; img.alt='';
-    slide.appendChild(img);
-    wrap.appendChild(slide);
-    const dot=document.createElement('span');
-    dot.className='photo-dot'+(i===0?' active':'');
-    dot.addEventListener('click',()=>jump(i));
-    dotsRow.appendChild(dot);
-  });
-  countLbl.textContent='1 / '+photos.length;
-
-  function jump(n){
-    wrap.querySelectorAll('.slide')[cur].classList.remove('active');
-    dotsRow.querySelectorAll('.photo-dot')[cur].classList.remove('active');
-    cur=(n+photos.length)%photos.length;
-    wrap.querySelectorAll('.slide')[cur].classList.add('active');
-    dotsRow.querySelectorAll('.photo-dot')[cur].classList.add('active');
-    countLbl.textContent=(cur+1)+' / '+photos.length;
-  }
-  function next(){clearInterval(autoTimer);jump(cur+1);startAuto();}
-  function prev(){clearInterval(autoTimer);jump(cur-1);startAuto();}
-  function startAuto(){autoTimer=setInterval(()=>jump(cur+1),delay);}
-
-  btnNext.addEventListener('click',next);
-  btnPrev.addEventListener('click',prev);
-  tapNext.addEventListener('click',next);
-  tapPrev.addEventListener('click',prev);
-  startAuto();
-}
-
-async function buildPersons(){
+function initPersonSections(){
   const container=document.getElementById('persons-container');
-  const entries=Object.entries(CONFIG.people);
-
-  // Build all section skeletons first (with loading state)
-  const sections={};
-  entries.forEach(([key,person],idx)=>{
+  Object.entries(CONFIG.people).forEach(([key,person],idx)=>{
     if(idx>0){
       const dv=document.createElement('div');
       dv.className='section-divider';
@@ -377,7 +319,6 @@ async function buildPersons(){
     }
     const sec=document.createElement('section');
     sec.className='person reveal';
-    sec.dataset.key=key;
     sec.innerHTML=
       '<div class="person-header">'+
         '<span class="person-num">'+String(idx+1).padStart(2,'0')+'.</span>'+
@@ -395,22 +336,64 @@ async function buildPersons(){
         '</div>'+
       '</div>';
     container.appendChild(sec);
-    sections[key]=sec;
-  });
 
-  initReveal();
+    const wrap    =sec.querySelector('.slides-wrap');
+    const dotsRow =sec.querySelector('.slide-dots-row');
+    const countLbl=sec.querySelector('.slide-count-label');
+    const btnPrev =sec.querySelector('.slide-btn.prev');
+    const btnNext =sec.querySelector('.slide-btn.next');
+    const tapPrev =sec.querySelector('.slide-tap.prev');
+    const tapNext =sec.querySelector('.slide-tap.next');
+    const st={wrap,dotsRow,countLbl,count:0,cur:0,timer:null,started:false};
+    personStates[key]=st;
 
-  // Detect and build each person's photos
-  for(const [key,person] of entries){
-    const sec=sections[key];
-    const delay=3200+Object.keys(CONFIG.people).indexOf(key)*150;
-    const photos=await detectPhotos(key);
-    if(photos.length===0){
-      // No photos found: hide the slideshow, show small note
-      sec.querySelector('.slideshow').style.display='none';
-    } else {
-      buildSlideshow(sec,photos,delay);
+    function jump(n){
+      const slides=wrap.querySelectorAll('.slide');
+      const dots=dotsRow.querySelectorAll('.photo-dot');
+      if(!slides.length)return;
+      slides[st.cur].classList.remove('active');
+      dots[st.cur].classList.remove('active');
+      st.cur=(n+st.count)%st.count;
+      slides[st.cur].classList.add('active');
+      dots[st.cur].classList.add('active');
+      countLbl.textContent=(st.cur+1)+' / '+st.count;
     }
+    st.jump=jump;
+    function startAuto(){st.timer=setInterval(()=>{if(st.count>1)jump(st.cur+1);},3500+idx*150);}
+    st.startAuto=startAuto;
+    function next(){clearInterval(st.timer);jump(st.cur+1);startAuto();}
+    function prev(){clearInterval(st.timer);jump(st.cur-1);startAuto();}
+    btnNext.addEventListener('click',next); tapNext.addEventListener('click',next);
+    btnPrev.addEventListener('click',prev); tapPrev.addEventListener('click',prev);
+  });
+}
+
+function appendPhoto(key,src){
+  const st=personStates[key];
+  if(!st)return;
+  const i=st.count++;
+  if(i===0){const l=st.wrap.querySelector('.slide-loading');if(l)l.remove();}
+  const slide=document.createElement('div');
+  slide.className='slide'+(i===0?' active':'');
+  const img=document.createElement('img');img.src=src;img.alt='';
+  slide.appendChild(img);st.wrap.appendChild(slide);
+  const dot=document.createElement('span');
+  dot.className='photo-dot'+(i===0?' active':'');
+  dot.addEventListener('click',()=>st.jump(i));
+  st.dotsRow.appendChild(dot);
+  st.countLbl.textContent=(st.cur+1)+' / '+st.count;
+  if(!st.started){st.started=true;st.startAuto();}
+}
+
+async function buildPersons(){
+  initPersonSections();
+  initReveal();
+  const keys=Object.keys(CONFIG.people);
+  // ラウンドごと: 全員の1番→全員の2番→... 見つかったものから即表示
+  for(let n=1;n<=CONFIG.maxPhotos;n++){
+    await Promise.all(keys.map(key=>
+      tryPhoto(key,n).then(src=>{if(src)appendPhoto(key,src);})
+    ));
   }
 }
 
