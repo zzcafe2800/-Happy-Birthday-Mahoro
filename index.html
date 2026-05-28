@@ -59,7 +59,7 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 .msg-arrows{display:flex;gap:1rem;align-items:center;margin-top:.4rem;}
 .msg-arrow{background:none;border:1px solid rgba(201,149,106,.4);color:var(--gold);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;}
 .msg-arrow:hover{background:rgba(201,149,106,.15);border-color:var(--gold);}
-.msg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,3vw,1.55rem);font-weight:300;font-style:italic;color:var(--cream);line-height:1.8;position:relative;z-index:1;padding:0 1rem;transition:opacity .35s ease,transform .35s ease;}
+.msg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,3vw,1.55rem);font-weight:300;font-style:italic;color:var(--cream);line-height:1.8;position:relative;z-index:1;padding:0 1rem;white-space:pre-line;transition:opacity .35s ease,transform .35s ease;}
 .msg-text.fade-out{opacity:0;transform:translateY(8px);}
 .msg-text.fade-in{animation:fadeUp .45s ease both;}
 .msg-progress-wrap{width:100%;max-width:300px;height:1px;background:rgba(255,255,255,.1);margin-top:1.2rem;border-radius:1px;overflow:hidden;}
@@ -185,18 +185,18 @@ const CONFIG = {
   groupPhoto: "s111.png",
 
   messages: [
-    "お誕生日おめでとう～！まほろさんが健やかで平穏に過ごせますように！",
-    "まほっちゃお誕生日おめでと～！！ いつも元気を貰えてすごく感謝だよ～～！！ この一年毎日良い日を過ごしてね～！！ 辛い日があっても元気にしに行くよ！！ 改めておめでと～🎈🎈",
-    "まほろさんお誕生日おめでとうー！🎂🎉 素敵な一年になりますように…！！",
-    "まほろさんお誕生日おめでとう～～！🎉🎉 まほろさんにとって最高の一年になるようお祈りしています！🎂",
-    "お誕生日おめでとう！！！ gogh復帰したときあたたかく迎えてくれてすごくうれしかったのずっと覚えてます！ まほろさんもアバターちゃんも大好きなのでこれからもいろんな時間を一緒に過ごせると嬉しいです🥰 楽しい一年にしようぞ✊",
-    "誕生日おめでと〜！！まほさんの柔らかい雰囲気が癒し！！！ 素敵な一年にしてね🥳",
-    "お誕生日おめでとうございます…！ 誰にでも優しくているだけでふわっと空気が和らぐまほろさんの存在にいつも癒されています❤️ まほろさんにとっても素敵な一年になりますように！",
-    "まほちゃお誕生日おめでとう！✨🎊🎂🎊✨ 今年もいい年にしてね！いっぱいしあわせになって～！ またお部屋でいっぱいごろごろしよ～！🐾🎶",
-    "まほろさん、お誕生日おめでとうございます！！ 良く一緒にいてくれて嬉しいです～ 楽しくて実りのある１年になりますように💕",
-    "まほちゃんお誕生日おめでとうございます！いつも温かくて優しくて楽しいまほちゃんが大好き！！ 良い一年になりますように！♡",
-    "まほろちゃん、お誕生日おめでとう！🎂🎉 幸多き一年になりますように！！🥳",
-    "まほちゃお誕生日おめでとう！ 今年もいい年にしてね！いっぱいしあわせになって～！ またお部屋でいっぱいごろごろしよ～！",
+    "お誕生日おめでとう～！\nまほろさんが健やかで平穏に過ごせますように！",
+    "まほっちゃお誕生日おめでと～！！\nいつも元気を貰えてすごく感謝だよ～～！！\nこの一年毎日良い日を過ごしてね～！！\n辛い日があっても元気にしに行くよ！！\n改めておめでと～🎈🎈",
+    "まほろさんお誕生日おめでとうー！🎂🎉\n素敵な一年になりますように…！！",
+    "まほろさんお誕生日おめでとう～～！🎉🎉\nまほろさんにとって最高の一年になるようお祈りしています！🎂",
+    "お誕生日おめでとう！！！\ngogh復帰したときあたたかく迎えてくれてすごくうれしかったのずっと覚えてます！\nまほろさんもアバターちゃんも大好きなので\nこれからもいろんな時間を一緒に過ごせると嬉しいです🥰\n楽しい一年にしようぞ✊",
+    "誕生日おめでと〜！！\nまほさんの柔らかい雰囲気が癒し！！！\n素敵な一年にしてね🥳",
+    "お誕生日おめでとうございます…！\n誰にでも優しくているだけでふわっと空気が和らぐ\nまほろさんの存在にいつも癒されています❤️\nまほろさんにとっても素敵な一年になりますように！",
+    "まほちゃお誕生日おめでとう！✨🎊🎂🎊✨\n今年もいい年にしてね！いっぱいしあわせになって～！\nまたお部屋でいっぱいごろごろしよ～！🐾🎶",
+    "まほろさん、お誕生日おめでとうございます！！\n良く一緒にいてくれて嬉しいです～\n楽しくて実りのある１年になりますように💕",
+    "まほちゃんお誕生日おめでとうございます！\nいつも温かくて優しくて楽しいまほちゃんが大好き！！\n良い一年になりますように！♡",
+    "まほろちゃん、お誕生日おめでとう！🎂🎉\n幸多き一年になりますように！！🥳",
+    "まほちゃお誕生日おめでとう！\n今年もいい年にしてね！いっぱいしあわせになって～！\nまたお部屋でいっぱいごろごろしよ～！",
   ],
 
   /* 写真の人たち a〜m
@@ -213,7 +213,7 @@ const CONFIG = {
     h: { name: "かべるねふらん" },
     i: { name: "ちぇる" },
     j: { name: "atychi" },
-    k: { name: "jbito" },
+    k: { name: "びと" },
     l: { name: "せぴあ" },
     m: { name: "ノブ" },
   },
@@ -325,7 +325,7 @@ function initPersonSections(){
         '<span class="person-name">'+(person.name||key.toUpperCase()+'さん')+'</span>'+
       '</div>'+
       '<div class="slideshow">'+
-        '<div class="slides-wrap"><div class="slide-loading">読み込み中...</div></div>'+
+        '<div class="slides-wrap"><div class="slide-loading">思い出パンク中...</div></div>'+
         '<button class="slide-btn prev">&#8592;</button>'+
         '<button class="slide-btn next">&#8594;</button>'+
         '<div class="slide-tap prev"></div>'+
