@@ -31,6 +31,7 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 .frame-placeholder .ph-main{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:var(--gold2);opacity:.7;line-height:1.4;}
 .frame-placeholder .ph-sub{font-size:.65rem;color:var(--muted);letter-spacing:.06em;opacity:.6;}
 .frame-hint{display:flex;align-items:center;gap:.8rem;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);animation:pulse 2s 1.5s infinite;}
+.cover-date{font-family:'Cormorant Garamond',serif;font-size:clamp(.75rem,2vw,1rem);letter-spacing:.35em;color:rgba(232,201,160,0.45);margin-top:-.4rem;}
 @keyframes pulse{0%,100%{opacity:.4;}50%{opacity:1;}}
 
 /* MAIN */
@@ -108,15 +109,16 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 @media(max-width:600px){.slideshow{aspect-ratio:1/1;}.frame{width:min(80vw,300px);}}
-.audio-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(26,23,20,0.93);backdrop-filter:blur(8px);border-top:1px solid rgba(201,149,106,0.2);display:flex;align-items:center;gap:.9rem;padding:.55rem 1.2rem;}
-.audio-btn{background:none;border:1px solid rgba(201,149,106,0.5);color:var(--gold);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
-.audio-btn:hover{background:rgba(201,149,106,0.15);}
-.audio-label{font-size:.6rem;color:var(--muted);letter-spacing:.08em;white-space:nowrap;flex-shrink:0;}
-.audio-vol{-webkit-appearance:none;appearance:none;width:120px;height:2px;background:rgba(255,255,255,0.15);border-radius:2px;outline:none;cursor:pointer;flex-shrink:0;}
-.audio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--gold);cursor:pointer;}
-.audio-vol::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;}
-/* ページ下部に余白（バーに隠れないように） */
-.finale{padding-bottom:5rem;}
+/* cover date */
+.cover-date{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,3vw,1.35rem);letter-spacing:.45em;color:rgba(232,201,160,0.6);margin-bottom:.5rem;}
+/* volume control in finale */
+.vol-wrap{display:flex;align-items:center;justify-content:center;gap:.9rem;margin-top:2rem;}
+.vol-btn{background:none;border:1px solid rgba(201,149,106,0.4);color:var(--gold);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0;}
+.vol-btn:hover{background:rgba(201,149,106,0.12);}
+.vol-icon{font-size:.85rem;}
+.vol-slider{-webkit-appearance:none;appearance:none;width:180px;height:2px;background:rgba(201,149,106,0.2);border-radius:2px;outline:none;cursor:pointer;}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 6px rgba(201,149,106,0.5);}
+.vol-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -124,17 +126,11 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 <!-- AUDIO -->
 <audio id="bgm" src="はっぴいばあすでいつーゆー.mp3" loop preload="auto"></audio>
 
-<!-- AUDIO BAR -->
-<div class="audio-bar">
-  <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">▶</button>
-  <span class="audio-label">🎵 Happy Birthday</span>
-  <input class="audio-vol" id="audio-vol" type="range" min="0" max="1" step="0.01" value="0.5" oninput="setVolume(this.value)">
-</div>
-
 <!-- COVER -->
 <div id="cover" class="cover" onclick="enterSite()">
   <div class="frame-wrap">
     <p class="cover-title">Happy Birthday — まほろさん</p>
+    <p class="cover-date">2026 &thinsp;·&thinsp; 05 &thinsp;·&thinsp; 29</p>
     <div class="frame">
       <span class="corner tl"></span><span class="corner tr"></span>
       <span class="corner bl"></span><span class="corner br"></span>
@@ -188,7 +184,12 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 
   <section class="finale reveal">
     <p class="finale-text"><em>お誕生日おめでとう！！</em></p>
-    <p class="finale-sub">From コミュニティ一同 🎂</p>
+    <p class="finale-sub">From みんなから 🎂</p>
+    <div class="vol-wrap">
+      <button class="vol-btn" id="audio-btn" onclick="toggleAudio()">▶</button>
+      <span class="vol-icon">🎵</span>
+      <input class="vol-slider" id="audio-vol" type="range" min="0" max="1" step="0.01" value="0.15" oninput="setVolume(this.value)">
+    </div>
   </section>
 
 </div>
@@ -263,11 +264,18 @@ function enterSite() {
     main.classList.add('main-enter');
     buildPersons();
     initReveal();
-    // BGM スタート
+    // BGM フェードイン
     const bgm = document.getElementById('bgm');
-    bgm.volume = 0.5;
+    bgm.volume = 0;
     bgm.play().catch(()=>{});
     document.getElementById('audio-btn').textContent = '❚❚';
+    let v = 0;
+    const fadeIn = setInterval(() => {
+      v = Math.min(v + 0.006, 0.15);
+      bgm.volume = v;
+      document.getElementById('audio-vol').value = v;
+      if(v >= 0.15) clearInterval(fadeIn);
+    }, 80);
   }, 750);
 }
 
