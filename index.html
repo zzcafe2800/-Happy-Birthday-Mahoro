@@ -182,7 +182,7 @@ const CONFIG = {
   birthdayPerson: "まほろ",
 
   /* 集合写真 */
-  groupPhoto: "photos/s111.png",
+  groupPhoto: "s111.png",
 
   messages: [
     "お誕生日おめでとう～！まほろさんが健やかで平穏に過ごせますように！",
@@ -218,7 +218,8 @@ const CONFIG = {
     m: { name: "ノブ" },
   },
 
-  maxPhotos: 20,   /* 1人あたり最大枚数 */
+  photoDir: "",    /* 写真フォルダ: index.htmlと同じ階層なら空欄 "photos/" なら photos フォルダ */
+  maxPhotos: 25,   /* 1人あたり最大枚数 */
 };
 /* ================================================================
    以下は編集不要です
@@ -298,17 +299,16 @@ function tryLoadSrc(src){
   });
 }
 async function detectPhotos(letter){
+  const dir=CONFIG.photoDir||'';
   const found=[];
   for(let n=1;n<=CONFIG.maxPhotos;n++){
-    const jpgSrc='photos/'+letter+n+'.jpg';
-    const pngSrc='photos/'+letter+n+'.png';
-    // try jpg first, then png
-    const jpg=await tryLoadSrc(jpgSrc);
-    if(jpg){ found.push(jpg); continue; }
-    const png=await tryLoadSrc(pngSrc);
-    if(png){ found.push(png); }
-    // if neither loaded, stop sequential search
-    // (allow gaps: try all 20 to handle non-sequential naming)
+    const base=dir+letter+n;
+    // try jpg → JPG → png → PNG の順で探す
+    const result=await tryLoadSrc(base+'.jpg')
+      ||await tryLoadSrc(base+'.JPG')
+      ||await tryLoadSrc(base+'.png')
+      ||await tryLoadSrc(base+'.PNG');
+    if(result) found.push(result);
   }
   return found;
 }
@@ -423,5 +423,4 @@ function initReveal(){
 }
 </script>
 </body>
-</html>
 </html>
