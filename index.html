@@ -108,9 +108,28 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 @media(max-width:600px){.slideshow{aspect-ratio:1/1;}.frame{width:min(80vw,300px);}}
+.audio-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(26,23,20,0.93);backdrop-filter:blur(8px);border-top:1px solid rgba(201,149,106,0.2);display:flex;align-items:center;gap:.9rem;padding:.55rem 1.2rem;}
+.audio-btn{background:none;border:1px solid rgba(201,149,106,0.5);color:var(--gold);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
+.audio-btn:hover{background:rgba(201,149,106,0.15);}
+.audio-label{font-size:.6rem;color:var(--muted);letter-spacing:.08em;white-space:nowrap;flex-shrink:0;}
+.audio-vol{-webkit-appearance:none;appearance:none;width:120px;height:2px;background:rgba(255,255,255,0.15);border-radius:2px;outline:none;cursor:pointer;flex-shrink:0;}
+.audio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.audio-vol::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;}
+/* ページ下部に余白（バーに隠れないように） */
+.finale{padding-bottom:5rem;}
 </style>
 </head>
 <body>
+
+<!-- AUDIO -->
+<audio id="bgm" src="はっぴいばあすでいつーゆー.mp3" loop preload="auto"></audio>
+
+<!-- AUDIO BAR -->
+<div class="audio-bar">
+  <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">▶</button>
+  <span class="audio-label">🎵 Happy Birthday</span>
+  <input class="audio-vol" id="audio-vol" type="range" min="0" max="1" step="0.01" value="0.5" oninput="setVolume(this.value)">
+</div>
 
 <!-- COVER -->
 <div id="cover" class="cover" onclick="enterSite()">
@@ -161,7 +180,7 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 
   <div class="section-divider">
     <span class="divider-line"></span>
-    <span class="divider-text">みんなとの おもいで</span>
+    <span class="divider-text">いっしょの おもいで</span>
     <span class="divider-line"></span>
   </div>
 
@@ -169,7 +188,7 @@ body{background:var(--cream);color:var(--dark);font-family:'DM Sans',sans-serif;
 
   <section class="finale reveal">
     <p class="finale-text"><em>お誕生日おめでとう！！</em></p>
-    <p class="finale-sub">From みんな 🎂</p>
+    <p class="finale-sub">From コミュニティ一同 🎂</p>
   </section>
 
 </div>
@@ -244,7 +263,22 @@ function enterSite() {
     main.classList.add('main-enter');
     buildPersons();
     initReveal();
+    // BGM スタート
+    const bgm = document.getElementById('bgm');
+    bgm.volume = 0.5;
+    bgm.play().catch(()=>{});
+    document.getElementById('audio-btn').textContent = '❚❚';
   }, 750);
+}
+
+function toggleAudio(){
+  const bgm = document.getElementById('bgm');
+  const btn = document.getElementById('audio-btn');
+  if(bgm.paused){ bgm.play(); btn.textContent='❚❚'; }
+  else { bgm.pause(); btn.textContent='▶'; }
+}
+function setVolume(v){
+  document.getElementById('bgm').volume = v;
 }
 
 /* --- MESSAGES --- */
