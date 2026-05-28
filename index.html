@@ -232,8 +232,8 @@ const CONFIG = {
     g: { name: "おいも" },
     h: { name: "かべるねふらん" },
     i: { name: "ちぇる" },
-    j: { name: "atychi" },
-    k: { name: "びと" },
+    j: { name: "びと" },
+    k: { name: "atychi" },
     l: { name: "せぴあ" },
     m: { name: "ノブ" },
   },
@@ -339,9 +339,14 @@ function tryPhoto(letter,n){
     img.onload=()=>resolve(base+'.jpg');
     img.onerror=()=>{
       const img2=new Image();
-      img2.onload=()=>resolve(base+'.png');
-      img2.onerror=()=>resolve(null);
-      img2.src=base+'.png';
+      img2.onload=()=>resolve(base+'.JPG');
+      img2.onerror=()=>{
+        const img3=new Image();
+        img3.onload=()=>resolve(base+'.png');
+        img3.onerror=()=>resolve(null);
+        img3.src=base+'.png';
+      };
+      img2.src=base+'.JPG';
     };
     img.src=base+'.jpg';
   });
